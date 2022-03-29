@@ -1,4 +1,5 @@
 from Lista.MatrizDispersa import MatrizDispersa
+from Lista.SimpleUnitMilitary import SimpleUnitMilitary
 from Lista.Robots import Robots
 
 class Ciudad():
@@ -7,7 +8,8 @@ class Ciudad():
         self.ciudad = ciudad
         self.filas = filas
         self.columnas = columnas
-        self.matrizOrtogonal = MatrizDispersa()
+        self.list_row = SimpleUnitMilitary()
+        self.matrizOrtogonal = MatrizDispersa(0)
         self.robots = Robots()
         
         

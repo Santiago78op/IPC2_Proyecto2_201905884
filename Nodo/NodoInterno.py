@@ -1,7 +1,7 @@
 
 class NodoInterno():
     
-    def __init__(self, x=None,y=None,caracter=None) -> None:
+    def __init__(self, x=None,y=None,caracter=None):
         self.caracter = caracter
         self.x = x
         self.y = y
