@@ -3,7 +3,7 @@ from Nodo.NodoRobots import NodoSimpleRobots
 
 class Robots():
 
-    def __init__(self, nodecount=0):
+    def __init__(self, nodecount=0) -> None:
         self.head = None
         self.nodecount = nodecount
 
@@ -26,7 +26,25 @@ class Robots():
                   current.data.tipo, " Capcidad: ", current.data.capacidad)
             current = current.link
 
-    def busquedaRobots(self, robot):
+    def chapinRescue(self):
+        current = self.head
+
+        while current != None:
+            if current.data.tipo == 'ChapinRescue':
+                print("Robot: ", current.data.robot, " Tipo: ",
+                      current.data.tipo, " Capcidad: ", current.data.capacidad)
+            current = current.link
+
+    def chapinFighter(self):
+        current = self.head
+
+        while current != None:
+            if current.data.tipo == 'ChapinFighter':
+                print("Robot: ", current.data.robot, " Tipo: ",
+                      current.data.tipo, " Capcidad: ", current.data.capacidad)
+            current = current.link
+
+    def busquedaRobot(self, robot):
         if self.head is None:
             return
         current = self.head
@@ -36,6 +54,36 @@ class Robots():
                 return current.data
             current = current.link
         return None
+
+    def busquedaRobots(self, tipo):
+        if self.head is None:
+            return
+        current = self.head
+
+        cont = 0
+        aux = ''
+        cadena = ''
+        while current is not None:
+            if current.data.tipo == tipo:
+                aux = current.data
+                cont += 1
+            current = current.link
+        if cont == 1:
+            return cont
+        elif cont > 1:
+            return cont
+        elif cont == 0:
+            return cont
+
+    def entregarRobot(self, tipo):
+        if self.head is None:
+            return
+        current = self.head
+
+        while current is not None:
+            if current.data.tipo == tipo:
+                return current.data
+            current = current.link
 
     def eliminar(self, robot: str):
         current = self.head

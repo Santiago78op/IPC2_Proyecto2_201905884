@@ -3,7 +3,7 @@ from Nodo.NodoUnitMilitary import NodoSimpleUnitMilitary
 
 class SimpleUnitMilitary():
 
-    def __init__(self, nodecount=0):
+    def __init__(self, nodecount=0) -> None:
         self.head = None
         self.nodecount = nodecount
 

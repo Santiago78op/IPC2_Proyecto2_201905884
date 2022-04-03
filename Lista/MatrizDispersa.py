@@ -74,6 +74,7 @@ class MatrizDispersa():
                         else:
                             aux2 = aux2.abajo
 
+
     def graficarDot(self, nombre):
         # -- lo primero es settear los valores que nos preocupan
         grafo = 'digraph T{ \nnode[shape=box fontname="Arial" fillcolor="white" style=filled ]'
@@ -148,7 +149,7 @@ class MatrizDispersa():
                         aux2.x, aux2.y, aux2.caracter, int(aux2.y)+1)
                 elif aux2.caracter.isdigit():
                     grafo += 'N{}_{}[label="{}",group="{}", fillcolor="red"];\n'.format(
-                        aux2.x, aux2.y, aux2.caracter, int(aux2.y)+1)
+                        aux2.x, aux2.y, 'U', int(aux2.y)+1)
                 elif aux2.caracter == 'C':
                     grafo += 'N{}_{}[label="{}",group="{}", fillcolor="blue"];\n'.format(
                         aux2.x, aux2.y, aux2.caracter, int(aux2.y)+1)

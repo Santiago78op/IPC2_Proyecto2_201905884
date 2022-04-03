@@ -5,7 +5,7 @@
             <nombre filas="15" columnas="20">CiudadGotica</nombre>
             <fila numero="1">"********************"</fila>
             <fila numero="2">"*** **             *"</fila>
-            <fila numero="3">"*** *****E*****C****"</fila>
+            <fila numero="3">"*** ***********C****"</fila>
             <fila numero="4">"*** ***** ***** ***R"</fila>
             <fila numero="5">"E                   "</fila>
             <fila numero="6">"*** ** ** ** ** ****"</fila>
@@ -15,7 +15,7 @@
             <fila numero="10">"*** ** ** ** ** ****"</fila>
             <fila numero="11">"***                *"</fila>
             <fila numero="12">"*** ** ** ** ** ****"</fila>
-            <fila numero="13">"*** **  E ** *R ****"</fila>
+            <fila numero="13">"*** **  * ** *R ****"</fila>
             <fila numero="14">"*** *****         C*"</fila>
             <fila numero="15">"*** *****C***** ****"</fila>
             <unidadMilitar fila="1" columna="1">20</unidadMilitar>
@@ -28,13 +28,13 @@
     </listaCiudades>
     <robots>
         <robot>
-            <nombre tipo="ChapinFighter" capacidad="50">Robocop</nombre>
+            <nombre tipo="ChapinFighter" capacidad="30">Robocop</nombre>
         </robot>
         <robot>
             <nombre tipo="ChapinRescue">Ironman</nombre>
         </robot>
         <robot>
-            <nombre tipo="ChapinFighter" capacidad="10">MaxSteel</nombre>
+            <nombre tipo="ChapinFighter" capacidad="80">MaxSteel</nombre>
         </robot>
         <robot>
             <nombre tipo="ChapinRescue">OptimusPrime</nombre>
