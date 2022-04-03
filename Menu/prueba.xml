@@ -1,1 +1,46 @@
-hola mundo
+<?xml version="1.0"?>
+<configuracion>
+    <listaCiudades>
+        <ciudad>
+            <nombre filas="15" columnas="20">CiudadGotica</nombre>
+            <fila numero="1">"********************"</fila>
+            <fila numero="2">"*** **             *"</fila>
+            <fila numero="3">"*** ***********C****"</fila>
+            <fila numero="4">"*** ***** ***** ***R"</fila>
+            <fila numero="5">"E                   "</fila>
+            <fila numero="6">"*** ** ** ** ** ****"</fila>
+            <fila numero="7">"*** ** ** ** ** **R*"</fila>
+            <fila numero="8">"*                  *"</fila>
+            <fila numero="9">"*** ** ** ** ** ****"</fila>
+            <fila numero="10">"*** ** ** ** ** ****"</fila>
+            <fila numero="11">"***                *"</fila>
+            <fila numero="12">"*** ** ** ** ** ****"</fila>
+            <fila numero="13">"*** **  * ** *R ****"</fila>
+            <fila numero="14">"*** *****         C*"</fila>
+            <fila numero="15">"*** *****C***** ****"</fila>
+            <unidadMilitar fila="1" columna="1">20</unidadMilitar>
+            <unidadMilitar fila="5" columna="20">20</unidadMilitar>
+            <unidadMilitar fila="8" columna="16">20</unidadMilitar>
+            <unidadMilitar fila="11" columna="7">20</unidadMilitar>
+            <unidadMilitar fila="11" columna="15">20</unidadMilitar>
+            <unidadMilitar fila="14" columna="10">20</unidadMilitar>
+        </ciudad>
+    </listaCiudades>
+    <robots>
+        <robot>
+            <nombre tipo="ChapinFighter" capacidad="30">Robocop</nombre>
+        </robot>
+        <robot>
+            <nombre tipo="ChapinRescue">Ironman</nombre>
+        </robot>
+        <robot>
+            <nombre tipo="ChapinFighter" capacidad="80">MaxSteel</nombre>
+        </robot>
+        <robot>
+            <nombre tipo="ChapinRescue">OptimusPrime</nombre>
+        </robot>
+        <robot>
+            <nombre tipo="ChapinFighter" capacidad="100">Megatron</nombre>
+        </robot>
+    </robots>
+</configuracion>
