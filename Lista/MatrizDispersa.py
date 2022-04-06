@@ -1,6 +1,7 @@
 from Nodo.NodoEncabezado import Encabezado
 from Nodo.NodoInterno import NodoInterno
 from Lista.ListaEncabezados import ListaEncabezado
+from Lista.ListaVecinos import ListVecinos
 
 import os
 
@@ -74,6 +75,30 @@ class MatrizDispersa():
                         else:
                             aux2 = aux2.abajo
 
+    def casilla(self, x,y):
+        #Encabezados
+        x_fila = self.filas.primero
+        y_columna = self.columnas.primero
+        
+        #Posición
+        self.x = x
+        self.y = y
+        
+        #tipo(obtaculo=*,vacio=' ',entrada=E,unidadMilitar=U,UnidadCivil=C,Recurso=R)
+        self.tipo = ' '
+        
+        #Peso
+        self.f = 0 #costo total (g+h)
+        self.g = 0 #pasos dados
+        self.h = 0 #heuristica (estimacion de lo que queda del recorido)
+        
+        self.vecinos = ListVecinos()
+        self.padre =None
+        
+        #Calcular Vecinos
+        if self.x > 0:
+            self.vecinos.append()
+ 
 
     def graficarDot(self, nombre):
         # -- lo primero es settear los valores que nos preocupan
