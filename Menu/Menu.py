@@ -1,17 +1,19 @@
 # directorios internos
 
 # ? Constructores
-from Constructor.Algoritmo import Algoritmo
-from Constructor.Folders import Files
-from Constructor.Ciudad import Ciudad
-from Constructor.Robot import Robot
-from Constructor.Filas import Filas
-from Constructor.UnidadMilitar import UnitMilitary
-from Nodo.NodoInterno import NodoInterno
+from Builder.Files import File
+from Builder.City import City
+from Builder.UnitMilitary import UnitMilitary
+from Builder.Unit import Unit
+from Builder.Robot import Robot
 
 # TODO: Listas de listas
-from Lista.SimpleFile import FileListaSimple
-from Lista.SimpleCiudad import CiudadListaSimple
+from Lists.List_Files import List_Files
+from Lists.List_City import List_City
+
+# * Nodos
+from Nodes.Nodo_Interno import Nodo_Interno
+
 
 # ! librerias externas
 import xml.etree.ElementTree as ET
@@ -31,7 +33,7 @@ class Menu():
         self.salir = 0
         self.misionRescate = 1
         self.misionRecursos = 2
-        self.lista_ciudades = CiudadListaSimple()
+        self.lista_ciudad = List_City()
 
     def mostrarMenu(self) -> None:
         """
@@ -47,7 +49,7 @@ Seleccione una Opción:\n
        \t{self.salir}) -> Salir\n''')
 
     def menu(self) -> bool:
-        lista_rutas = list()
+        lista_files = List_Files()
         while True:
 
             self.mostrarMenu()
@@ -62,37 +64,38 @@ Seleccione una Opción:\n
                     fileChooser = Tk()
                     fileChooser.withdraw()
                     try:
-                        self.route = askopenfilename(
+                        route = askopenfilename(
                             title='Selecciona un archivo', filetypes=[('Archivos', '.xml')])
                         fileChooser.destroy()
-                        print(self.route)
+                        print('Ruta', route)
 
-                        if self.route == '' or self.route == None:
-                            print('Error, no se ha seleccionado ningun archivo')
-                        else:
-                            lista_rutas.append(self.route)
+                        if route == None or route == '':
+                            print(Fore.RED, 'No selecciono ningun archivo!')
+                        elif route != None or route != '':
+                            self.pathFile(route, lista_files)
 
-                    except:
-                        print('Error, no se ha seleccionado ningun archivo')
-                        return
+                    except (OSError, FileNotFoundError):
+                        print(f'Imposble encontrar o abrir la ruta <{route}>')
+                    except Exception as error:
+                        print(f'Un error a ocurrido: <{error}>')
+
                 elif opcionMenu == self.findfile:
 
-                    lista_files = self.readFolder(lista_rutas)
-                    lista_files.recorrerFile()
+                    lista_files.recorrer()
                     nameFile = input("\nInserta el nombre del Archivo: >> ")
                     dataFile = lista_files.busquedaFile(nameFile)
 
                     if dataFile is None:
-                        print(Fore.RED, "No Existe el File Error!")
+                        print(Fore.RED, "Error!, No existe el Archivo")
                     else:
                         print(Fore.LIGHTWHITE_EX,
-                              "El File fue encontrado con Exito!!!!!")
-                        print("Nombre: ", dataFile.nombre,
-                              " Ruta: ", dataFile.ruta)
+                              "El Archivo fue encontrado con Exito!!!!!")
+                        print("Nombre: ", dataFile.nombre)
 
-                        contenido = self.readContent(dataFile.ruta)
+                        contenido = self.readContent(dataFile.path)
                         if contenido != '':
-                            lista_ciudades = self.clonFile(contenido)
+                            lista_ciudades = self.createXml(
+                                contenido)
 
                 elif opcionMenu == self.city:
                     print(Fore.LIGHTMAGENTA_EX, "Listado de Ciudades en Orden\n")
@@ -102,182 +105,59 @@ Seleccione una Opción:\n
                     nameCity = input("\nInserta el nombre de la Ciudad: >> ")
                     nameCity = str(nameCity)
 
-                    if nameCity == None:
+                    if nameCity == '':
                         print('Error, no se ha seleccionado ninguna Ciudad')
-                    elif nameCity != None:
+                    elif nameCity != '':
                         try:
                             city = lista_ciudades.busquedaCiudad(nameCity)
-                            city.algorithm.recorrer()
                             city.matrizOrtogonal.graficarDot(nameCity)
                         except:
                             print('Error, no se encontro la Ciudad')
                             return
 
                 elif opcionMenu == self.safeWay:
-                    print(Fore.LIGHTMAGENTA_EX, "Listado de Ciudades en Orden\n")
-                    lista_ciudades.bubbleSortCiudad()
-                    lista_ciudades.recorrerCiudad()
+                    while True:
+                        os.system('cls')
+                        print(Fore.CYAN, f'''
+                    \t<-- Menu Principal Chapín Warriors, S.A. -->\n
+Seleccione una Misión:\n
+\t{self.misionRescate}) -> Misión de rescate
+\t{self.misionRecursos}) -> Misión de extracción de recursos
+\t{self.salir}) -> Salir\n''')
 
-                    nameCity = input("\nInserta el nombre de la Ciudad: >> ")
-                    nameCity = str(nameCity)
+                        opcionSubMenu = input(
+                            "Insetar el numero de la opción: >> ")
 
-                    if nameCity == None:
-                        print('Error, no se ha seleccionado ninguna Ciudad')
-                    elif nameCity != None:
                         try:
-                            city = lista_ciudades.busquedaCiudad(nameCity)
-                            while True:
-                                os.system('cls')
-                                print(Fore.CYAN, f'''
-                            \t<-- Menu Principal Chapín Warriors, S.A. -->\n
-    Seleccione una Misión:\n
-        \t{self.misionRescate}) -> Misión de rescate
-        \t{self.misionRecursos}) -> Misión de extracción de recursos
-        \t{self.salir}) -> Salir\n''')
+                            opcionSubMenu = int(opcionSubMenu)
 
-                                opcionSubMenu = input(
-                                    "Insetar el numero de la opción: >> ")
+                            #!TODO: MISION RESCATE
 
-                                try:
-                                    opcionSubMenu = int(opcionSubMenu)
-                                    
-                                    #!TODO: MISION RESCATE
-                                
-                                    if opcionSubMenu == self.misionRescate:
-                                        numCity = city.unidades.busquedaFilas(
-                                            'Entrada')
-                                        if numCity > 1:
-                                            city.unidades.recorrerEntrada()
-                                            filaE = input("Ingrese Fila: >> ")
-                                            columnaE = input(
-                                                "Ingrese Columna: >> ")
-                                            starPoint = f'{filaE},{columnaE}'
-                                        elif numCity == 0:
-                                            print(
-                                                Fore.RED, 'Error no existen entradas en la Matriz')
-                                        elif numCity == 1:
-                                            numCity = city.unidades.entregarCiudad(
-                                                'Entrada')
-                                            filaU = numCity.fila
-                                            columnaU = numCity.columna
-                                            starPoint = f'{filaU},{columnaU}'
-                                            print(starPoint)
-                                        
-                                        numRobot = city.robots.busquedaRobots(
-                                            'ChapinRescue')
-                                        if numRobot > 1:
-                                            city.robots.chapinRescue()
-                                            nameR = input("Ingrese nombre: >> ")
-                                            robotR = f'{nameR}'
-                                        elif numRobot == 0:
-                                            print(
-                                                Fore.RED, 'Error no existen robots ChapinRescue')
-                                        elif numRobot == 1:
-                                            numRobot = city.unidades.entregarRobot(
-                                                'ChapinRescue')
-                                            nameR = numRobot.robot
-                                            robotR = f'{nameR}'
-                                            print(robotR)
-                                            
-                                        numCity = city.unidades.busquedaFilas(
-                                            'UnidadCivil')
-                                        if numCity > 1:
-                                            city.unidades.recorrerCiviles()
-                                            filaE = input("Ingrese Fila: >> ")
-                                            columnaE = input(
-                                                "Ingrese Columna: >> ")
-                                            endPoint = f'{filaE},{columnaE}'
-                                        elif numCity == 0:
-                                            print(
-                                                Fore.RED, 'Error no existen Unidades Civiles en la Matriz')
-                                        elif numCity == 1:
-                                            numCity = city.unidades.entregarCiudad(
-                                                'UnidadCivil')
-                                            filaU = numCity.fila
-                                            columnaU = numCity.columna
-                                            endPoint = f'{filaU},{columnaU}'
-                                            print(endPoint)
-                                                       
-                                    #!TODO: MISION RECURSOS
+                            if opcionSubMenu == self.misionRescate:
+                                self.misionRescue(lista_ciudades)
+                            #!TODO: MISION RECURSOS
 
-                                    elif opcionSubMenu == self.misionRecursos:
-                                        numCity = city.unidades.busquedaFilas(
-                                            'Entrada')
-                                        if numCity > 1:
-                                            city.unidades.recorrerEntrada()
-                                            filaE = input("Ingrese Fila: >> ")
-                                            columnaE = input(
-                                                "Ingrese Columna: >> ")
-                                            starPoint = f'{filaE},{columnaE}'
-                                        elif numCity == 0:
-                                            print(
-                                                Fore.RED, 'Error no existen entradas en la Matriz')
-                                        elif numCity == 1:
-                                            numCity = city.unidades.entregarCiudad(
-                                                'Entrada')
-                                            filaU = numCity.fila
-                                            columnaU = numCity.columna
-                                            starPoint = f'{filaU},{columnaU}'
-                                            print(starPoint)
-                                            
-                                        numRobot = city.robots.busquedaRobots(
-                                            'ChapinFighter')
-                                        if numRobot > 1:
-                                            city.robots.chapinFighter()
-                                            nameR = input(
-                                                "Ingrese nombre: >> ")
-                                            robotR = f'{nameR}'
-                                        elif numRobot == 0:
-                                            print(
-                                                Fore.RED, 'Error no existen robots ChapinFighter')
-                                        elif numRobot == 1:
-                                            numRobot = city.unidades.entregarRobot(
-                                                'ChapinFighter')
-                                            nameR = numRobot.robot
-                                            robotR = f'{nameR}'
-                                            print(robotR)
+                            elif opcionSubMenu == self.misionRecursos:
+                                self.misionFighter(lista_ciudades)
 
-                                        numCity = city.unidades.busquedaFilas(
-                                            'Recurso')
-                                        if numCity > 1:
-                                            city.unidades.recorrerRecursos()
-                                            filaE = input("Ingrese Fila: >> ")
-                                            columnaE = input(
-                                                "Ingrese Columna: >> ")
-                                            endPoint = f'{filaE},{columnaE}'
-                                        elif numCity == 0:
-                                            print(
-                                                Fore.RED, 'Error no existen Unidades Civiles en la Matriz')
-                                        elif numCity == 1:
-                                            numCity = city.unidades.entregarCiudad(
-                                                'Recurso')
-                                            filaU = numCity.fila
-                                            columnaU = numCity.columna
-                                            endPoint = f'{filaU},{columnaU}'
-                                            print(endPoint)
-                                            
-                                            
-                                    elif opcionSubMenu == self.salir:
-                                        print(Fore.GREEN,
-                                              "\nSalio del SubMenu Selccionar Mision\n")
-                                        False
-                                        break
-                                    else:
-                                        print(Fore.YELLOW,
-                                              'Opcion no válida...')
-                                    input(
-                                        '\nPresiona enter para Ingresar al SubMenú...')
-                                    os.system('cls')
+                            elif opcionSubMenu == self.salir:
+                                print(Fore.GREEN,
+                                      "\nSalio del SubMenu Selccionar Mision\n")
+                                False
+                                break
+                            else:
+                                print(Fore.YELLOW,
+                                      'Opcion no válida...')
+                            input(
+                                '\nPresiona enter para Ingresar al SubMenú...')
+                            os.system('cls')
 
-                                except ValueError as error:
-                                    print(Fore.RED, f'Error: {error}')
-                                    print(
-                                        Fore.RED, 'El programa no permite carateres tipo alpha')
-                                    input(
-                                        'Presione la tecla Enter para continuar@')
-                        except:
-                            print('Error, no se encontro la Ciudad')
-                            return
+                        except ValueError as error:
+                            print(Fore.RED, f'Error: {error}')
+                            print(
+                                Fore.RED, 'El programa no permite carateres tipo alpha')
+                            input(
+                                'Presione la tecla Enter para continuar@')
 
                 elif opcionMenu == self.salir:
                     print(Fore.GREEN,
@@ -293,16 +173,14 @@ Seleccione una Opción:\n
                 print(Fore.RED, 'El programa no permite carateres tipo alpha')
                 input('Presione la tecla Enter para continuar@')
 
-    def readFolder(self, lista_rutas):
-        lista_files = FileListaSimple()
-        cont = 1
-        for ruta in lista_rutas:
-            name = 'Archivo_{}'.format(cont)
-            newFile = Files(name, ruta)
-            lista_files.append(newFile)
-            cont += 1
-
-        return lista_files
+    def pathFile(self, route, list_File: List_Files):
+        ruta = list_File.busqueda(route)
+        if ruta == None:
+            nombre = os.path.basename(route)
+            file = File(nombre, route)
+            list_File.insertar(file)
+        else:
+            print(Fore.GREEN, 'Este archivo ya fue Cargado')
 
     def readContent(self, ruta):
         entrada = ''
@@ -312,7 +190,7 @@ Seleccione una Opción:\n
         file.close()
         return entrada
 
-    def clonFile(self, contenido):
+    def createXml(self, contenido):
 
         path = 'Data\contenedor.xml'
         with open(path, 'w') as f:
@@ -329,15 +207,16 @@ Seleccione una Opción:\n
                     name = nombre.text.strip()
                     filas = nombre.attrib['filas']
                     columnas = nombre.attrib['columnas']
-                    findCiudad = self.lista_ciudades.busquedaCiudad(name)
 
-                    if findCiudad == None:
-                        newCity = Ciudad(name, filas, columnas)
-                        self.lista_ciudades.append(newCity)
-                    elif findCiudad.ciudad == name:
-                        self.lista_ciudades.eliminar(name)
-                        newCity = Ciudad(name, filas, columnas)
-                        self.lista_ciudades.append(newCity)
+                    findCity = self.lista_ciudad.busquedaCiudad(name)
+
+                    if findCity == None:
+                        city = City(name, filas, columnas)
+                        self.lista_ciudad.insertar(city)
+                    elif findCity.ciudad == name:
+                        self.lista_ciudad.eliminar(findCity)
+                        city = City(name, filas, columnas)
+                        self.lista_ciudad.insertar(city)
 
                 for unitMilitary in ciudad.iter('unidadMilitar'):
                     unit = unitMilitary.text.strip()
@@ -347,7 +226,7 @@ Seleccione una Opción:\n
                     columna = unitMilitary.attrib['columna']
                     columna = int(columna)
                     newUnit = UnitMilitary(unit, fila, columna)
-                    newCity.list_row.append(newUnit)
+                    city.list_row.append(newUnit)
 
                 filasF = 1
                 for rows in ciudad.iter('fila'):
@@ -359,52 +238,222 @@ Seleccione una Opción:\n
                     for f in range(int(filasF), int(filasF)+1):
                         for c in range(1, int(columnas)+1):
                             k = chart[cont]
-                            point = newCity.list_row.FilasChange(f, c)
+                            point = city.list_row.FilasChange(f, c)
                             if point != None:
-                                change = NodoInterno(f, c, point)
-                                newCity.matrizOrtogonal.appendMatriz(change)
+                                change = Nodo_Interno(f, c, point)
+                                city.matrizOrtogonal.insertar(change)
                                 cont += 1
                             elif point == None:
-                                change = NodoInterno(f, c, k)
-                                newCity.matrizOrtogonal.appendMatriz(change)
+                                change = Nodo_Interno(f, c, k)
+                                city.matrizOrtogonal.insertar(change)
                                 cont += 1
                                 if k == 'E':
-                                    nuevaUnidad = Filas('Entrada', k, f, c)
-                                    newCity.unidades.append(nuevaUnidad)
+                                    nuevaUnidad = Unit('Entrada', k, f, c)
+                                    city.unidades.append(nuevaUnidad)
                                 elif k == 'C':
-                                    nuevaUnidad = Filas('UnidadCivil', k, f, c)
-                                    newCity.unidades.append(nuevaUnidad)
+                                    nuevaUnidad = Unit('UnidadCivil', k, f, c)
+                                    city.unidades.append(nuevaUnidad)
                                 elif k == 'R':
-                                    nuevaUnidad = Filas('Recurso', k, f, c)
-                                    newCity.unidades.append(nuevaUnidad)
+                                    nuevaUnidad = Unit('Recurso', k, f, c)
+                                    city.unidades.append(nuevaUnidad)
                     filasF += 1
 
-            for robots in ciudades.iter('robot'):
-                for robot in robots.iter('nombre'):
-                    nameRobot = robot.text.strip()
-                    findRobot = newCity.robots.busquedaRobots(nameRobot)
-                    if findRobot == None:
-                        tipo = robot.attrib['tipo']
-                        if 'capacidad' in robot.attrib:
-                            capacidad = robot.attrib['capacidad']
-                            robote = Robot(nameRobot, tipo, capacidad)
-                            newCity.robots.append(robote)
+                for robotes in root:
+                    for robots in robotes.iter('robot'):
+                        for robot in robots.iter('nombre'):
+                            nameRobot = robot.text.strip()
+                            findRobot = city.robots.busquedaRobot(nameRobot)
+                            if findRobot == None:
+                                tipo = robot.attrib['tipo']
+                                if 'capacidad' in robot.attrib:
+                                    capacidad = robot.attrib['capacidad']
+                                    robote = Robot(nameRobot, tipo, capacidad)
+                                    city.robots.append(robote)
 
-                        else:
-                            capacidad = None
-                            robote = Robot(nameRobot, tipo, capacidad)
-                            newCity.robots.append(robote)
-                    else:
-                        newCity.robots.eliminar(nameRobot)
-                        tipo = robot.attrib['tipo']
-                        if 'capacidad' in robot.attrib:
-                            capacidad = robot.attrib['capacidad']
-                            robote = Robot(nameRobot, tipo, capacidad)
-                            newCity.robots.append(robote)
+                                else:
+                                    capacidad = None
+                                    robote = Robot(nameRobot, tipo, capacidad)
+                                    city.robots.append(robote)
+                            else:
+                                city.robots.eliminar(findRobot)
+                                tipo = robot.attrib['tipo']
+                                if 'capacidad' in robot.attrib:
+                                    capacidad = robot.attrib['capacidad']
+                                    robote = Robot(nameRobot, tipo, capacidad)
+                                    city.robots.append(robote)
 
-                        else:
-                            capacidad = None
-                            robote = Robot(nameRobot, tipo, capacidad)
-                            newCity.robots.append(robote)
+                                else:
+                                    capacidad = None
+                                    robote = Robot(nameRobot, tipo, capacidad)
+                                    city.robots.append(robote)
 
-        return self.lista_ciudades
+        return self.lista_ciudad
+
+    def misionRescate(self, lista_ciudades=List_City):
+        print(Fore.LIGHTMAGENTA_EX,
+              "Listado de Ciudades en Orden\n")
+        lista_ciudades.bubbleSortCiudad()
+        lista_ciudades.recorrerCiudad()
+        nameCity = input(
+            "\nInserta el nombre de la Ciudad: >> ")
+        if nameCity == '':
+            print(
+                'Error, no se ha seleccionado ninguna Ciudad')
+        elif nameCity != '':
+            city = lista_ciudades.busquedaCiudad(
+                nameCity)
+
+            print(Fore.LIGHTWHITE_EX,
+                  'Misión Rescate')
+            numCity = city.unidades.busquedaFilas(
+                'Entrada')
+            if numCity > 1:
+                print(Fore.GREEN,
+                      'Lista de Entradas en Ciudad')
+                city.unidades.recorrerEntrada()
+                filaS = input("Ingrese Fila: >> ")
+                columnaS = input(
+                    "Ingrese Columna: >> ")
+            elif numCity == 0:
+                print(
+                    Fore.RED, 'Error no existen entradas en la Matriz')
+            elif numCity == 1:
+                print(Fore.GREEN,
+                      'Seleccionando entrada....!')
+                numCity = city.unidades.entregarCiudad(
+                    'Entrada')
+                filaS = numCity.fila
+                columnaS = numCity.columna
+
+            print(Fore.LIGHTBLUE_EX,
+                  '\n Robots')
+            numRobot = city.robots.busquedaRobots(
+                'ChapinRescue')
+            if numRobot > 1:
+                print(Fore.GREEN,
+                      'Lista de Robots')
+                city.robots.chapinRescue()
+                nameR = input(
+                    "Ingrese nombre: >> ")
+                robote = city.robots.busquedaRobot(
+                    nameR)
+            elif numRobot == 0:
+                print(
+                    Fore.RED, 'Error no existen robots ChapinRescue')
+            elif numRobot == 1:
+                print(Fore.GREEN,
+                      'Seleccionando Robot....!')
+                robote = city.unidades.entregarRobot(
+                    'ChapinRescue')
+
+            print(Fore.GREEN,
+                  '\nUnidades Civiles')
+            numCity = city.unidades.busquedaFilas(
+                'UnidadCivil')
+            if numCity > 1:
+                print(Fore.GREEN,
+                      'Lista de Unidades Civiles en la Ciudad')
+                city.unidades.recorrerCiviles()
+                filaE = input("Ingrese Fila: >> ")
+                columnaE = input(
+                    "Ingrese Columna: >> ")
+                Fe = filaE
+                Ce = columnaE
+            elif numCity == 0:
+                print(
+                    Fore.RED, 'Error no existen Unidades Civiles en la Matriz')
+            elif numCity == 1:
+                print(Fore.GREEN,
+                      'Seleccionando Unidad Civil....!')
+                numCity = city.unidades.entregarCiudad(
+                    'UnidadCivil')
+                Fe = numCity.fila
+                Ce = numCity.columna
+
+            print(filaS, columnaS, Fe, Ce,
+                  city.filas, city.columnas, robote)
+            city.matrizOrtogonal.principal(
+                filaS, columnaS, Fe, Ce, city.filas, city.columnas, robote, city.ciudad)
+
+    def misionFighter(self, lista_ciudades=List_City):
+        print(Fore.LIGHTMAGENTA_EX,
+              "Listado de Ciudades en Orden\n")
+        lista_ciudades.bubbleSortCiudad()
+        lista_ciudades.recorrerCiudad()
+        nameCity = input(
+            "\nInserta el nombre de la Ciudad: >> ")
+        if nameCity == '':
+            print(
+                'Error, no se ha seleccionado ninguna Ciudad')
+        elif nameCity != '':
+            city = lista_ciudades.busquedaCiudad(
+                nameCity)
+
+        print(Fore.LIGHTWHITE_EX,
+              'Misión de Extración de Recursos')
+        numCity = city.unidades.busquedaFilas(
+            'Entrada')
+        if numCity > 1:
+            print(Fore.GREEN,
+                  'Lista de Entradas en Ciudad')
+            city.unidades.recorrerEntrada()
+            filaS = input("Ingrese Fila: >> ")
+            columnaS = input(
+                "Ingrese Columna: >> ")
+        elif numCity == 0:
+            print(
+                Fore.RED, 'Error no existen entradas en la Matriz')
+        elif numCity == 1:
+            print(Fore.GREEN,
+                  'Seleccionando entrada....!')
+            numCity = city.unidades.entregarCiudad(
+                'Entrada')
+            filaS = numCity.fila
+            columnaS = numCity.columna
+
+        print(Fore.LIGHTBLUE_EX,
+              '\n Robots')
+        numRobot = city.robots.busquedaRobots(
+            'ChapinFighter')
+        if numRobot > 1:
+            print(Fore.GREEN,
+                  'Lista de Robots')
+            city.robots.chapinFighter()
+            nameR = input(
+                "Ingrese nombre: >> ")
+            robote = city.robots.busquedaRobot(
+                nameR)
+        elif numRobot == 0:
+            print(
+                Fore.RED, 'Error no existen robots ChapinFighter')
+        elif numRobot == 1:
+            print(Fore.GREEN,
+                  'Seleccionando Robot....!')
+            robote = city.unidades.entregarRobot(
+                'ChapinFighter')
+
+        print(Fore.GREEN,
+              '\nUnidades Recurso')
+        numCity = city.unidades.busquedaFilas(
+            'Recurso')
+        if numCity > 1:
+            print(Fore.GREEN,
+                  'Lista de Unidades de Recursos en la Ciudad')
+            city.unidades.recorrerRecursos()
+            Fe = input("Ingrese Fila: >> ")
+            Ce = input("Ingrese Columna: >> ")
+        elif numCity == 0:
+            print(
+                Fore.RED, 'Error no existen Unidades Civiles en la Matriz')
+        elif numCity == 1:
+            print(Fore.GREEN,
+                  'Seleccionando Unidad Recurso....!')
+            numCity = city.unidades.entregarCiudad(
+                'Recurso')
+            Fe = numCity.fila
+            Ce = numCity.columna
+
+        print(filaS, columnaS, Fe, Ce,
+              city.filas, city.columnas, robote)
+        city.matrizOrtogonal.principal(
+            filaS, columnaS, int(Fe), int(Ce), int(city.filas), int(city.columnas), robote, city.ciudad)
